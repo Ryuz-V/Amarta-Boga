@@ -1,0 +1,6 @@
+# ========================================================
+# Amarta Boga POS - Linux Crontab Entry (Laravel Scheduler)
+# Jalankan perintah: crontab -e -u www-data
+# ========================================================
+
+* * * * * cd /var/www/amarta-pos && php artisan schedule:run >> /dev/null 2>&1
