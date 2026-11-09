@@ -53,6 +53,7 @@ Route::middleware(['auth', 'active.user'])->group(function () {
     // KOKI / KITCHEN DISPLAY SYSTEM (KDS) MODULE
     Route::middleware('role:koki|admin')->group(function () {
         Route::get('/kds', [KdsController::class, 'index'])->name('kds.index');
+        Route::get('/koki/dashboard', [KdsController::class, 'index'])->name('koki.dashboard');
         Route::patch('/kds/orders/{order}/status', [KdsController::class, 'updateStatus'])->name('kds.orders.status');
         Route::patch('/kds/items/{item}/status', [KdsController::class, 'updateItemStatus'])->name('kds.items.status');
         Route::post('/kds/items/{item}/cancel', [KdsController::class, 'cancelItem'])->name('kds.items.cancel');

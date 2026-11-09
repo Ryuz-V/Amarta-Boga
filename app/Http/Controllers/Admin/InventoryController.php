@@ -9,15 +9,13 @@ use App\Models\ActivityLog;
 use App\Models\Ingredient;
 use App\Models\StockMovement;
 use App\Models\Supplier;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\View\View;
 
 class InventoryController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request)
     {
         $query = Ingredient::query();
 
@@ -39,10 +37,19 @@ class InventoryController extends Controller
         $suppliers = Supplier::where('is_active', true)->orderBy('name')->get();
         $recentMovements = StockMovement::with(['ingredient', 'supplier', 'user'])->latest()->take(8)->get();
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'ingredients' => $ingredients,
+                'suppliers' => $suppliers,
+                'recent_movements' => $recentMovements
+            ]);
+        }
+
         return view('admin.inventory.index', compact('ingredients', 'suppliers', 'recentMovements'));
     }
 
-    public function storeIngredient(Request $request): RedirectResponse
+    public function storeIngredient(Request $request)
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -74,11 +81,19 @@ class InventoryController extends Controller
             "Administrator menambahkan bahan baku baru: {$ingredient->name}"
         );
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Bahan baku {$ingredient->name} berhasil ditambahkan!",
+                'data' => $ingredient,
+            ], 201);
+        }
+
         return redirect()->route('admin.inventory.index')
             ->with('success', "Bahan baku {$ingredient->name} berhasil ditambahkan!");
     }
 
-    public function updateIngredient(Request $request, Ingredient $ingredient): RedirectResponse
+    public function updateIngredient(Request $request, Ingredient $ingredient)
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -94,13 +109,27 @@ class InventoryController extends Controller
             "Administrator memperbarui data bahan baku: {$ingredient->name}"
         );
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Bahan baku {$ingredient->name} berhasil diperbarui!",
+                'data' => $ingredient,
+            ]);
+        }
+
         return redirect()->route('admin.inventory.index')
             ->with('success', "Bahan baku {$ingredient->name} berhasil diperbarui!");
     }
 
-    public function destroyIngredient(Ingredient $ingredient): RedirectResponse
+    public function destroyIngredient(Request $request, Ingredient $ingredient)
     {
         if ($ingredient->recipes()->count() > 0) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Bahan baku {$ingredient->name} tidak dapat dihapus karena terhubung dalam resep menu."
+                ], 422);
+            }
             return back()->with('error', "Bahan baku {$ingredient->name} tidak dapat dihapus karena terhubung dalam resep menu.");
         }
 
@@ -112,11 +141,18 @@ class InventoryController extends Controller
             "Administrator menghapus bahan baku: {$name}"
         );
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Bahan baku {$name} berhasil dihapus."
+            ]);
+        }
+
         return redirect()->route('admin.inventory.index')
             ->with('success', "Bahan baku {$name} berhasil dihapus.");
     }
 
-    public function adjustStock(StockAdjustmentRequest $request): RedirectResponse
+    public function adjustStock(StockAdjustmentRequest $request)
     {
         $validated = $request->validated();
         $ingredient = Ingredient::findOrFail($validated['ingredient_id']);
@@ -167,11 +203,19 @@ class InventoryController extends Controller
             "Pergerakan stok {$validated['type']} sebesar {$validated['quantity']} {$ingredient->unit} pada {$ingredient->name}"
         );
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Mutasi stok {$ingredient->name} berhasil dicatat!",
+                'data' => $ingredient->fresh()
+            ]);
+        }
+
         return redirect()->route('admin.inventory.index')
             ->with('success', "Mutasi stok {$ingredient->name} berhasil dicatat!");
     }
 
-    public function movements(Request $request): View
+    public function movements(Request $request)
     {
         $query = StockMovement::with(['ingredient', 'supplier', 'user']);
 
@@ -185,6 +229,14 @@ class InventoryController extends Controller
 
         $movements = $query->latest()->paginate(20)->withQueryString();
         $ingredients = Ingredient::orderBy('name')->get();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'movements' => $movements,
+                'ingredients' => $ingredients
+            ]);
+        }
 
         return view('admin.inventory.movements', compact('movements', 'ingredients'));
     }

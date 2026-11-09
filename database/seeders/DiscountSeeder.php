@@ -24,8 +24,8 @@ class DiscountSeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'name' => 'Voucher Member VIP 15%',
-                'code' => 'MEMBERVIP',
+                'name' => 'Voucher Promo Spesial 15%',
+                'code' => 'PROMOSPESIAL15',
                 'type' => 'percentage',
                 'value' => 15.00,
                 'min_spend' => 150000,

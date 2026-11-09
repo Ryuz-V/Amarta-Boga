@@ -6,17 +6,23 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreDiscountRequest;
 use App\Models\ActivityLog;
 use App\Models\Discount;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class DiscountController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request)
     {
         $discounts = Discount::withCount('orders')
             ->latest()
             ->paginate(10);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'discounts' => $discounts
+            ]);
+        }
 
         return view('admin.discounts.index', compact('discounts'));
     }
@@ -26,7 +32,7 @@ class DiscountController extends Controller
         return view('admin.discounts.create');
     }
 
-    public function store(StoreDiscountRequest $request): RedirectResponse
+    public function store(StoreDiscountRequest $request)
     {
         $validated = $request->validated();
         $validated['is_active'] = $request->boolean('is_active', true);
@@ -38,8 +44,28 @@ class DiscountController extends Controller
             "Administrator membuat promo/diskon baru: {$discount->name}"
         );
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Diskon {$discount->name} berhasil ditambahkan!",
+                'data' => $discount
+            ], 201);
+        }
+
         return redirect()->route('admin.discounts.index')
             ->with('success', "Diskon {$discount->name} berhasil ditambahkan!");
+    }
+
+    public function show(Request $request, Discount $discount)
+    {
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $discount->loadCount('orders')
+            ]);
+        }
+
+        return redirect()->route('admin.discounts.edit', $discount);
     }
 
     public function edit(Discount $discount): View
@@ -47,7 +73,7 @@ class DiscountController extends Controller
         return view('admin.discounts.edit', compact('discount'));
     }
 
-    public function update(Request $request, Discount $discount): RedirectResponse
+    public function update(Request $request, Discount $discount)
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -71,11 +97,19 @@ class DiscountController extends Controller
             "Administrator memperbarui promo/diskon: {$discount->name}"
         );
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Diskon {$discount->name} berhasil diperbarui!",
+                'data' => $discount
+            ]);
+        }
+
         return redirect()->route('admin.discounts.index')
             ->with('success', "Diskon {$discount->name} berhasil diperbarui!");
     }
 
-    public function destroy(Discount $discount): RedirectResponse
+    public function destroy(Request $request, Discount $discount)
     {
         $name = $discount->name;
         $discount->delete();
@@ -85,16 +119,31 @@ class DiscountController extends Controller
             "Administrator menghapus promo/diskon: {$name}"
         );
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Diskon {$name} berhasil dihapus."
+            ]);
+        }
+
         return redirect()->route('admin.discounts.index')
             ->with('success', "Diskon {$name} berhasil dihapus.");
     }
 
-    public function toggleStatus(Discount $discount): RedirectResponse
+    public function toggleStatus(Request $request, Discount $discount)
     {
         $discount->is_active = !$discount->is_active;
         $discount->save();
 
         $status = $discount->is_active ? 'diaktifkan' : 'dinonaktifkan';
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'is_active' => $discount->is_active,
+                'message' => "Promo {$discount->name} berhasil {$status}."
+            ]);
+        }
 
         return back()->with('success', "Promo {$discount->name} berhasil {$status}.");
     }

@@ -6,23 +6,28 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreCategoryRequest;
 use App\Models\ActivityLog;
 use App\Models\Category;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Illuminate\View\View;
 
 class CategoryController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request)
     {
         $categories = Category::withCount('menus')
             ->orderBy('sort_order')
             ->get();
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $categories
+            ]);
+        }
+
         return view('admin.categories.index', compact('categories'));
     }
 
-    public function store(StoreCategoryRequest $request): RedirectResponse
+    public function store(StoreCategoryRequest $request)
     {
         $validated = $request->validated();
         $slug = Str::slug($validated['name']);
@@ -47,11 +52,19 @@ class CategoryController extends Controller
             "Administrator membuat kategori baru: {$category->name}"
         );
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Kategori {$category->name} berhasil ditambahkan!",
+                'data' => $category,
+            ], 201);
+        }
+
         return redirect()->route('admin.categories.index')
             ->with('success', "Kategori {$category->name} berhasil ditambahkan!");
     }
 
-    public function update(Request $request, Category $category): RedirectResponse
+    public function update(Request $request, Category $category)
     {
         $request->validate([
             'name' => ['required', 'string', 'max:100'],
@@ -72,13 +85,27 @@ class CategoryController extends Controller
             "Administrator memperbarui kategori: {$category->name}"
         );
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Kategori {$category->name} berhasil diperbarui!",
+                'data' => $category,
+            ]);
+        }
+
         return redirect()->route('admin.categories.index')
             ->with('success', "Kategori {$category->name} berhasil diperbarui!");
     }
 
-    public function destroy(Category $category): RedirectResponse
+    public function destroy(Request $request, Category $category)
     {
         if ($category->menus()->count() > 0) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Kategori {$category->name} tidak dapat dihapus karena masih memiliki {$category->menus()->count()} menu."
+                ], 422);
+            }
             return back()->with('error', "Kategori {$category->name} tidak dapat dihapus karena masih memiliki {$category->menus()->count()} menu.");
         }
 
@@ -89,6 +116,13 @@ class CategoryController extends Controller
             'DELETE_CATEGORY',
             "Administrator menghapus kategori: {$name}"
         );
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Kategori {$name} berhasil dihapus."
+            ]);
+        }
 
         return redirect()->route('admin.categories.index')
             ->with('success', "Kategori {$name} berhasil dihapus.");

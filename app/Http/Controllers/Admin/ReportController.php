@@ -133,6 +133,36 @@ class ReportController extends Controller
             ->paginate(10)
             ->withQueryString();
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'period' => [
+                    'preset' => $preset,
+                    'start_date' => $startDate->toDateString(),
+                    'end_date' => $endDate->toDateString(),
+                ],
+                'kpis' => [
+                    'total_orders' => $totalOrders,
+                    'gross_sales' => $grossSales,
+                    'total_discount' => $totalDiscount,
+                    'total_tax' => $totalTax,
+                    'total_service' => $totalService,
+                    'net_sales' => $netSales,
+                    'aov' => $aov,
+                    'total_cogs' => $totalCogs,
+                    'gross_profit' => $grossProfit,
+                    'profit_margin' => $profitMargin,
+                ],
+                'charts' => [
+                    'daily_trends' => array_combine($trendLabels, $trendValues),
+                    'payment_methods' => array_combine($paymentLabels, $paymentValues),
+                    'top_menus' => array_combine($topMenuLabels, $topMenuValues),
+                ],
+                'category_breakdown' => $categoryBreakdown,
+                'recent_orders' => $recentOrders,
+            ]);
+        }
+
         return view('admin.reports.sales', compact(
             'preset',
             'startDate',
@@ -222,6 +252,16 @@ class ReportController extends Controller
         $totalStartingCash = Shift::sum('starting_cash');
         $totalActualCash = Shift::where('status', 'closed')->sum('actual_cash');
         $totalVariance = Shift::where('status', 'closed')->sum('difference');
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'total_starting_cash' => $totalStartingCash,
+                'total_actual_cash' => $totalActualCash,
+                'total_variance' => $totalVariance,
+                'shifts' => $shifts,
+            ]);
+        }
 
         return view('admin.reports.shifts', compact(
             'shifts',

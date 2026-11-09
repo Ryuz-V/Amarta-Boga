@@ -19,9 +19,9 @@ class DatabaseSeeder extends Seeder
             SupplierSeeder::class,
             IngredientSeeder::class,
             CategorySeeder::class,
-            MenuSeeder::class,
+            // MenuSeeder::class, // Dinonaktifkan: Menu diinput mandiri lewat panel Admin
             DiscountSeeder::class,
-            SampleOrderSeeder::class,
+            // SampleOrderSeeder::class,
         ]);
     }
 }

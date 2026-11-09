@@ -9,12 +9,12 @@
         selectedTableNumber: '{{ $tables->first()?->number ?? '19' }}',
         orderType: 'dine_in',
         orderNotes: '',
-        
+
         // Diskon & Voucher
         discountCode: '',
         discountAmount: 0,
         discountMessage: '',
-        
+
         // Pajak & Servis dari Pengaturan Resto
         taxEnabled: {{ ($settings['tax_enabled'] ?? '1') == '1' ? 'true' : 'false' }},
         taxPercentage: {{ (float)($settings['tax_percentage'] ?? 11) }},
@@ -36,7 +36,7 @@
         cardLast4: '',
         cardBank: 'BCA',
         qrisRef: 'QRIS-' + Math.floor(100000 + Math.random() * 900000),
-        
+
         // Split Bill State
         splitCount: 2,
         splitPayments: [
@@ -161,7 +161,7 @@
 
             let menu = this.activeMenuForModifier;
             let finalPrice = parseFloat(menu.price) + this.selectedVariantAdjustment + this.selectedAddonsTotal;
-            
+
             let variantName = '';
             if (this.selectedVariantId) {
                 let v = menu.variants.find(vr => vr.id === this.selectedVariantId);
@@ -568,7 +568,7 @@
         <!-- CENTER WORKSPACE (Menu & Order Line)       -->
         <!-- ========================================== -->
         <div class="flex-1 flex flex-col h-full overflow-y-auto p-5 sm:p-6 lg:p-7 space-y-5 bg-white scrollbar-thin">
-            
+
             <!-- 1. Section: Order Line & Quick Shift/Parkir Status (Gambar 2) -->
             <div class="space-y-3">
                 <div class="flex items-center justify-between">
@@ -602,52 +602,6 @@
                     </div>
                 </div>
 
-                <!-- Notice / Upgrade Banner (Exact match to Gambar 2) -->
-                <div x-show="showUpgradeBanner" x-transition
-                    class="bg-white rounded-2xl p-4 border border-[#FF6B00]/40 flex items-center justify-between shadow-xs relative">
-                    <div class="flex items-center space-x-3.5 relative z-10">
-                        <div class="w-11 h-11 rounded-xl bg-[#16171B] flex items-center justify-center text-white flex-shrink-0 shadow-xs">
-                            <svg class="w-5 h-5 text-[#FFA149]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <rect x="4" y="4" width="16" height="16" rx="2" stroke-width="2"/>
-                                <rect x="9" y="9" width="6" height="6" stroke-width="2"/>
-                                <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 15h3M1 9h3M1 15h3" stroke-width="2" stroke-linecap="round"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 class="text-sm font-extrabold text-gray-900 leading-tight">
-                                Don't miss the opportunity to upgrade your system to the latest version
-                            </h4>
-                            <p class="text-xs text-gray-400 mt-0.5">
-                                Update to the latest version soon to discover the many exciting features we've added!
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center space-x-3 relative z-10 flex-shrink-0">
-                        <!-- Mini Phone graphic mockup matching Gambar 2 -->
-                        <div class="hidden sm:flex items-center justify-center w-8 h-10 bg-amber-50 rounded-lg border border-amber-200/60 p-0.5 -rotate-6 shadow-xs">
-                            <div class="w-full h-full bg-white rounded-md flex flex-col items-center justify-center p-0.5">
-                                <div class="w-3 h-0.5 bg-gray-200 rounded-full mb-0.5"></div>
-                                <div class="w-full h-4 bg-orange-100 rounded-xs"></div>
-                            </div>
-                        </div>
-
-                        <button type="button" @click="alert('Sistem Amarta Boga POS sudah versi 1.0 terbaru!')"
-                            class="px-4 py-2 rounded-xl bg-white border border-gray-200 hover:border-orange-300 text-gray-800 hover:text-[#FF6B00] font-bold text-xs transition-colors shadow-xs flex items-center space-x-1.5">
-                            <svg class="w-3.5 h-3.5 text-[#FF6B00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                            <span>Get Started</span>
-                        </button>
-
-                        <button type="button" @click="showUpgradeBanner = false"
-                            class="w-5 h-5 rounded-full bg-gray-900 text-white flex items-center justify-center text-[10px] hover:bg-black transition-colors"
-                            title="Tutup banner">
-                            ✕
-                        </button>
-                    </div>
-                </div>
 
                 <!-- Horizontal Scrollable Queue Cards matching Gambar 2 -->
                 <div class="flex space-x-4 overflow-x-auto pb-2 scrollbar-none">

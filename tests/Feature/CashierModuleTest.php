@@ -24,6 +24,50 @@ class CashierModuleTest extends TestCase
         parent::setUp();
         $this->cashier = User::where('email', 'kasir@amartaboga.com')->first();
         $this->admin = User::where('email', 'admin@amartaboga.com')->first();
+
+        if (Menu::count() === 0) {
+            $cat = Category::first() ?? Category::create(['name' => 'Makanan', 'slug' => 'makanan']);
+            $testMenu = Menu::create([
+                'category_id' => $cat->id,
+                'name' => 'Menu Uji Coba Test',
+                'slug' => 'menu-uji-coba-test',
+                'price' => 35000,
+                'cost_price' => 15000,
+                'is_active' => true,
+                'is_available' => true,
+            ]);
+            $ing = Ingredient::first();
+            if ($ing) {
+                $testMenu->recipes()->create([
+                    'ingredient_id' => $ing->id,
+                    'quantity_required' => 50,
+                ]);
+            }
+        }
+
+        if (Order::count() === 0) {
+            $m = Menu::first();
+            $table = Table::first();
+            $order = Order::create([
+                'invoice_number' => 'INV-TEST-001',
+                'user_id' => $this->cashier->id,
+                'table_id' => $table?->id,
+                'customer_name' => 'Test Customer',
+                'order_type' => 'dine_in',
+                'status' => 'pending',
+                'subtotal' => 35000,
+                'total_amount' => 35000,
+                'payment_status' => 'paid',
+            ]);
+            $order->items()->create([
+                'menu_id' => $m->id,
+                'menu_name' => $m->name,
+                'quantity' => 1,
+                'unit_price' => 35000,
+                'subtotal' => 35000,
+                'status' => 'pending',
+            ]);
+        }
     }
 
     public function test_cashier_can_access_pos_screen(): void
@@ -39,12 +83,13 @@ class CashierModuleTest extends TestCase
         $menu = Menu::where('is_available', true)->first();
         $table = Table::first();
 
+        $amountToPay = (int)(($menu->price * 2) * 1.5) + 100000;
         $response = $this->actingAs($this->cashier)->postJson('/pos/checkout', [
             'customer_name' => 'Budi Santoso',
             'order_type' => 'dine_in',
             'table_id' => $table->id,
             'payment_method' => 'cash',
-            'cash_tendered' => 300000,
+            'cash_tendered' => $amountToPay,
             'items' => [
                 [
                     'menu_id' => $menu->id,

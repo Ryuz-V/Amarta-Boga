@@ -420,7 +420,7 @@ class PosController extends Controller
         return $pdf->download("struk-{$order->invoice_number}.pdf");
     }
 
-    public function orders(Request $request): View
+    public function orders(Request $request)
     {
         $orders = Order::with(['table', 'user', 'payments', 'items'])
             ->when($request->search, function ($query, $search) {
@@ -433,6 +433,13 @@ class PosController extends Controller
             ->latest()
             ->paginate(15)
             ->withQueryString();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'orders' => $orders
+            ]);
+        }
 
         return view('pos.orders', compact('orders'));
     }

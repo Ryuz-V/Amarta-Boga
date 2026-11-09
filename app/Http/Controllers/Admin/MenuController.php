@@ -49,6 +49,14 @@ class MenuController extends Controller
         $menus = $query->latest()->paginate(12)->withQueryString();
         $categories = Category::orderBy('name')->get();
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'menus' => $menus,
+                'categories' => $categories
+            ]);
+        }
+
         return view('admin.menus.index', compact('menus', 'categories'));
     }
 
@@ -125,6 +133,14 @@ class MenuController extends Controller
             "Administrator membuat menu baru: {$menu->name} (Rp " . number_format($menu->price, 0) . ")"
         );
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Menu {$menu->name} berhasil ditambahkan!",
+                'data' => $menu->load(['variants', 'addons'])
+            ], 201);
+        }
+
         return redirect()->route('admin.menus.index')
             ->with('success', "Menu {$menu->name} berhasil ditambahkan!");
     }
@@ -200,11 +216,33 @@ class MenuController extends Controller
             "Administrator memperbarui menu: {$menu->name}"
         );
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Menu {$menu->name} berhasil diperbarui!",
+                'data' => $menu->load(['variants', 'addons'])
+            ]);
+        }
+
         return redirect()->route('admin.menus.index')
             ->with('success', "Menu {$menu->name} berhasil diperbarui!");
     }
 
-    public function destroy(Menu $menu): RedirectResponse
+    public function show(Request $request, Menu $menu)
+    {
+        $menu->load(['category', 'variants', 'addons', 'recipes.ingredient']);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $menu
+            ]);
+        }
+
+        return redirect()->route('admin.menus.edit', $menu);
+    }
+
+    public function destroy(Request $request, Menu $menu)
     {
         $name = $menu->name;
         $menu->delete();
@@ -214,11 +252,18 @@ class MenuController extends Controller
             "Administrator menghapus menu: {$name}"
         );
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Menu {$name} berhasil dihapus."
+            ]);
+        }
+
         return redirect()->route('admin.menus.index')
             ->with('success', "Menu {$name} berhasil dihapus.");
     }
 
-    public function toggleAvailability(Menu $menu): RedirectResponse
+    public function toggleAvailability(Request $request, Menu $menu)
     {
         $menu->is_available = !$menu->is_available;
         $menu->save();
@@ -238,6 +283,14 @@ class MenuController extends Controller
             ['menu_id' => $menu->id, 'is_available' => $menu->is_available]
         );
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'is_available' => $menu->is_available,
+                'message' => "Status menu {$menu->name} diubah menjadi {$statusText}."
+            ]);
+        }
+
         return back()->with('success', "Status menu {$menu->name} diubah menjadi {$statusText}.");
     }
 
@@ -249,7 +302,7 @@ class MenuController extends Controller
         return view('admin.menus.recipes', compact('menu', 'ingredients'));
     }
 
-    public function updateRecipes(Request $request, Menu $menu): RedirectResponse
+    public function updateRecipes(Request $request, Menu $menu)
     {
         $request->validate([
             'recipes' => ['nullable', 'array'],
@@ -277,6 +330,14 @@ class MenuController extends Controller
             'UPDATE_RECIPES',
             "Administrator memperbarui komposisi resep bahan baku untuk: {$menu->name}"
         );
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Resep bahan baku untuk {$menu->name} berhasil disimpan!",
+                'data' => $menu->load('recipes.ingredient')
+            ]);
+        }
 
         return redirect()->route('admin.menus.index')
             ->with('success', "Resep bahan baku untuk {$menu->name} berhasil disimpan!");

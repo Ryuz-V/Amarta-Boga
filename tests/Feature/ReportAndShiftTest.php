@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Category;
 use App\Models\Menu;
 use App\Models\Order;
 use App\Models\Shift;
@@ -22,6 +23,19 @@ class ReportAndShiftTest extends TestCase
         parent::setUp();
         $this->cashier = User::where('email', 'kasir@amartaboga.com')->first();
         $this->admin = User::where('email', 'admin@amartaboga.com')->first();
+
+        if (Menu::count() === 0) {
+            $cat = Category::first() ?? Category::create(['name' => 'Makanan', 'slug' => 'makanan']);
+            Menu::create([
+                'category_id' => $cat->id,
+                'name' => 'Menu Laporan Test',
+                'slug' => 'menu-laporan-test',
+                'price' => 30000,
+                'cost_price' => 12000,
+                'is_active' => true,
+                'is_available' => true,
+            ]);
+        }
     }
 
     public function test_admin_can_access_sales_report_page(): void

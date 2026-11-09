@@ -31,7 +31,7 @@ class KdsController extends Controller
         $warningMinutes = (int) ($settings['kds_warning_time_min'] ?? 10);
         $dangerMinutes = (int) ($settings['kds_danger_time_min'] ?? 20);
 
-        return view('kds.index', compact(
+        return view('koki_dashboard.index', compact(
             'orders',
             'menus',
             'settings',

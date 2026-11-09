@@ -1,0 +1,621 @@
+{
+	"info": {
+		"_postman_id": "amarta-boga-pos-collection",
+		"name": "Amarta Boga POS - Full API Collection",
+		"description": "Koleksi API lengkap untuk aplikasi kasir restoran Amarta Boga POS mencakup seluruh endpoint Kasir, Dapur (KDS), dan Administrator.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:8000",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "01. Autentikasi",
+			"item": [
+				{
+					"name": "Login sebagai Kasir",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"kasir@amartaboga.com\",\n    \"password\": \"password\",\n    \"remember\": true\n}"
+						},
+						"url": { "raw": "{{base_url}}/login", "host": ["{{base_url}}"], "path": ["login"] }
+					}
+				},
+				{
+					"name": "Login sebagai Koki",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"koki@amartaboga.com\",\n    \"password\": \"password\",\n    \"remember\": true\n}"
+						},
+						"url": { "raw": "{{base_url}}/login", "host": ["{{base_url}}"], "path": ["login"] }
+					}
+				},
+				{
+					"name": "Login sebagai Admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@amartaboga.com\",\n    \"password\": \"password\",\n    \"remember\": true\n}"
+						},
+						"url": { "raw": "{{base_url}}/login", "host": ["{{base_url}}"], "path": ["login"] }
+					}
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": { "raw": "{{base_url}}/logout", "host": ["{{base_url}}"], "path": ["logout"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "02. Kasir (POS)",
+			"item": [
+				{
+					"name": "Katalog & Menu Kasir",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/pos", "host": ["{{base_url}}"], "path": ["pos"] }
+					}
+				},
+				{
+					"name": "Checkout Order (Tunai)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customer_name\": \"Rachmad Jailani\",\n    \"order_type\": \"dine_in\",\n    \"table_id\": 1,\n    \"discount_code\": \"HEMAT10\",\n    \"notes\": \"Kuah pisah, es sedikit\",\n    \"items\": [\n        {\n            \"menu_id\": 1,\n            \"quantity\": 2,\n            \"variant_id\": null,\n            \"addon_ids\": [],\n            \"notes\": \"Pedas level 1\"\n        },\n        {\n            \"menu_id\": 2,\n            \"quantity\": 1,\n            \"variant_id\": null,\n            \"addon_ids\": [],\n            \"notes\": \"\"\n        }\n    ],\n    \"payment_method\": \"cash\",\n    \"cash_tendered\": 150000,\n    \"reference_number\": null\n}"
+						},
+						"url": { "raw": "{{base_url}}/pos/checkout", "host": ["{{base_url}}"], "path": ["pos", "checkout"] }
+					}
+				},
+				{
+					"name": "Checkout Order (QRIS)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customer_name\": \"Steve Houdini\",\n    \"order_type\": \"take_away\",\n    \"table_id\": null,\n    \"discount_code\": null,\n    \"notes\": \"Bungkus rapi\",\n    \"items\": [\n        {\n            \"menu_id\": 3,\n            \"quantity\": 1,\n            \"variant_id\": null,\n            \"addon_ids\": [],\n            \"notes\": \"\"\n        }\n    ],\n    \"payment_method\": \"qris\",\n    \"cash_tendered\": null,\n    \"reference_number\": \"QRIS-774912\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/pos/checkout", "host": ["{{base_url}}"], "path": ["pos", "checkout"] }
+					}
+				},
+				{
+					"name": "Parkir Pesanan (Hold Order)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customer_name\": \"Tamu Meja 04\",\n    \"order_type\": \"dine_in\",\n    \"table_id\": 4,\n    \"items\": [\n        {\n            \"menu_id\": 1,\n            \"quantity\": 1,\n            \"variant_id\": null,\n            \"addon_ids\": [],\n            \"notes\": \"Tahan sementara\"\n        }\n    ]\n}"
+						},
+						"url": { "raw": "{{base_url}}/pos/hold", "host": ["{{base_url}}"], "path": ["pos", "hold"] }
+					}
+				},
+				{
+					"name": "Daftar Pesanan yang Diparkir",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/pos/held-orders", "host": ["{{base_url}}"], "path": ["pos", "held-orders"] }
+					}
+				},
+				{
+					"name": "Panggil Kembali Pesanan Parkir (Resume)",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/pos/orders/1/resume", "host": ["{{base_url}}"], "path": ["pos", "orders", "1", "resume"] }
+					}
+				},
+				{
+					"name": "Batalkan Pesanan Parkir (Void)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"reason\": \"Pelanggan membatalkan pesanan\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/pos/orders/1/void", "host": ["{{base_url}}"], "path": ["pos", "orders", "1", "void"] }
+					}
+				},
+				{
+					"name": "Riwayat Transaksi Kasir",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/pos/orders", "host": ["{{base_url}}"], "path": ["pos", "orders"] }
+					}
+				},
+				{
+					"name": "Cek Status Shift Kasir",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/pos/shift/current", "host": ["{{base_url}}"], "path": ["pos", "shift", "current"] }
+					}
+				},
+				{
+					"name": "Buka Shift Kasir Baru",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"starting_cash\": 200000,\n    \"notes\": \"Modal kasir pagi\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/pos/shift/open", "host": ["{{base_url}}"], "path": ["pos", "shift", "open"] }
+					}
+				},
+				{
+					"name": "Tutup Shift Kasir",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"actual_cash\": 1250000,\n    \"notes\": \"Kas klop\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/pos/shift/close", "host": ["{{base_url}}"], "path": ["pos", "shift", "close"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "03. Dapur (KDS)",
+			"item": [
+				{
+					"name": "Antrean Pesanan Dapur",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/kds", "host": ["{{base_url}}"], "path": ["kds"] }
+					}
+				},
+				{
+					"name": "Update Status Order Dapur",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"processing\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/kds/orders/1/status", "host": ["{{base_url}}"], "path": ["kds", "orders", "1", "status"] }
+					}
+				},
+				{
+					"name": "Update Checklist Item Menu",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"ready\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/kds/items/1/status", "host": ["{{base_url}}"], "path": ["kds", "items", "1", "status"] }
+					}
+				},
+				{
+					"name": "Batalkan Item Menu",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"reason\": \"Bahan baku rusak di dapur\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/kds/items/1/cancel", "host": ["{{base_url}}"], "path": ["kds", "items", "1", "cancel"] }
+					}
+				},
+				{
+					"name": "Toggle Menu Habis (Sold Out)",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/kds/menus/1/sold-out", "host": ["{{base_url}}"], "path": ["kds", "menus", "1", "sold-out"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "04. Admin - Kategori Menu",
+			"item": [
+				{
+					"name": "Daftar Kategori",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/admin/categories", "host": ["{{base_url}}"], "path": ["admin", "categories"] }
+					}
+				},
+				{
+					"name": "Tambah Kategori",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Dessert & Pastry\",\n    \"icon\": \"cake\",\n    \"sort_order\": 5,\n    \"is_active\": true\n}"
+						},
+						"url": { "raw": "{{base_url}}/admin/categories", "host": ["{{base_url}}"], "path": ["admin", "categories"] }
+					}
+				},
+				{
+					"name": "Update Kategori",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Dessert & Ice Cream\",\n    \"icon\": \"ice-cream\",\n    \"sort_order\": 5,\n    \"is_active\": true\n}"
+						},
+						"url": { "raw": "{{base_url}}/admin/categories/1", "host": ["{{base_url}}"], "path": ["admin", "categories", "1"] }
+					}
+				},
+				{
+					"name": "Hapus Kategori",
+					"request": {
+						"method": "DELETE",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/admin/categories/99", "host": ["{{base_url}}"], "path": ["admin", "categories", "99"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "05. Admin - Menu & Resep",
+			"item": [
+				{
+					"name": "Daftar Menu Makanan & Minuman",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/admin/menus", "host": ["{{base_url}}"], "path": ["admin", "menus"] }
+					}
+				},
+				{
+					"name": "Detail Menu",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/admin/menus/1", "host": ["{{base_url}}"], "path": ["admin", "menus", "1"] }
+					}
+				},
+				{
+					"name": "Tambah Menu Baru",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"category_id\": 1,\n    \"name\": \"Beef Yakiniku Special\",\n    \"description\": \"Daging sapi wagyu pilihan dengan saus yakiniku khas\",\n    \"price\": 65000,\n    \"cost_price\": 32000,\n    \"sort_order\": 1,\n    \"is_active\": true,\n    \"is_available\": true,\n    \"is_favorite\": true,\n    \"variants\": [\n        { \"group\": \"Porsi\", \"name\": \"Regular\", \"price\": 0 },\n        { \"group\": \"Porsi\", \"name\": \"Large (Extra Daging)\", \"price\": 20000 }\n    ],\n    \"addons\": [\n        { \"name\": \"Onsen Egg\", \"price\": 8000 },\n        { \"name\": \"Nasi Putih Tambahan\", \"price\": 7000 }\n    ]\n}"
+						},
+						"url": { "raw": "{{base_url}}/admin/menus", "host": ["{{base_url}}"], "path": ["admin", "menus"] }
+					}
+				},
+				{
+					"name": "Update Menu",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"category_id\": 1,\n    \"name\": \"Beef Yakiniku Donburi\",\n    \"price\": 68000,\n    \"cost_price\": 33000,\n    \"is_active\": true,\n    \"is_available\": true\n}"
+						},
+						"url": { "raw": "{{base_url}}/admin/menus/1", "host": ["{{base_url}}"], "path": ["admin", "menus", "1"] }
+					}
+				},
+				{
+					"name": "Toggle Ketersediaan Menu",
+					"request": {
+						"method": "PATCH",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/admin/menus/1/toggle", "host": ["{{base_url}}"], "path": ["admin", "menus", "1", "toggle"] }
+					}
+				},
+				{
+					"name": "Set Komposisi Resep Bahan Baku",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"recipes\": [\n        { \"ingredient_id\": 1, \"quantity\": 120 },\n        { \"ingredient_id\": 2, \"quantity\": 15 }\n    ]\n}"
+						},
+						"url": { "raw": "{{base_url}}/admin/menus/1/recipes", "host": ["{{base_url}}"], "path": ["admin", "menus", "1", "recipes"] }
+					}
+				},
+				{
+					"name": "Hapus Menu",
+					"request": {
+						"method": "DELETE",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/admin/menus/99", "host": ["{{base_url}}"], "path": ["admin", "menus", "99"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "06. Admin - Inventori & Bahan Baku",
+			"item": [
+				{
+					"name": "Daftar Bahan Baku & Stok",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/admin/inventory", "host": ["{{base_url}}"], "path": ["admin", "inventory"] }
+					}
+				},
+				{
+					"name": "Tambah Bahan Baku Baru",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Daging Sapi Slice US\",\n    \"sku\": \"ING-BEEF-01\",\n    \"unit\": \"gram\",\n    \"current_stock\": 10000,\n    \"minimum_stock\": 2000,\n    \"cost_per_unit\": 180\n}"
+						},
+						"url": { "raw": "{{base_url}}/admin/inventory/ingredients", "host": ["{{base_url}}"], "path": ["admin", "inventory", "ingredients"] }
+					}
+				},
+				{
+					"name": "Penyesuaian Mutasi Stok Bahan",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ingredient_id\": 1,\n    \"type\": \"in\",\n    \"quantity\": 2500,\n    \"cost_per_unit\": 180,\n    \"notes\": \"Restock belanja pasar pagi\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/admin/inventory/adjust", "host": ["{{base_url}}"], "path": ["admin", "inventory", "adjust"] }
+					}
+				},
+				{
+					"name": "Riwayat Jejak Mutasi Stok",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/admin/inventory/movements", "host": ["{{base_url}}"], "path": ["admin", "inventory", "movements"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "07. Admin - Denah Meja",
+			"item": [
+				{
+					"name": "Daftar Meja",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/admin/tables", "host": ["{{base_url}}"], "path": ["admin", "tables"] }
+					}
+				},
+				{
+					"name": "Tambah Meja Baru",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"number\": \"VIP-02\",\n    \"name\": \"Meja VIP Sakura\",\n    \"capacity\": 8,\n    \"location\": \"VIP Room\",\n    \"status\": \"available\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/admin/tables", "host": ["{{base_url}}"], "path": ["admin", "tables"] }
+					}
+				},
+				{
+					"name": "Update Status / Lokasi Meja",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"number\": \"01\",\n    \"name\": \"Meja 01 (Dekat Kasir)\",\n    \"capacity\": 4,\n    \"location\": \"Lantai 1\",\n    \"status\": \"available\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/admin/tables/1", "host": ["{{base_url}}"], "path": ["admin", "tables", "1"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "08. Admin - Diskon & Promo",
+			"item": [
+				{
+					"name": "Daftar Diskon & Promo",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/admin/discounts", "host": ["{{base_url}}"], "path": ["admin", "discounts"] }
+					}
+				},
+				{
+					"name": "Tambah Diskon / Voucher Baru",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Promo Gajian 20%\",\n    \"code\": \"GAJIAN20\",\n    \"type\": \"percentage\",\n    \"value\": 20,\n    \"min_spend\": 100000,\n    \"max_discount\": 40000,\n    \"start_date\": \"2026-11-01\",\n    \"end_date\": \"2026-11-30\",\n    \"usage_limit\": 300,\n    \"is_active\": true\n}"
+						},
+						"url": { "raw": "{{base_url}}/admin/discounts", "host": ["{{base_url}}"], "path": ["admin", "discounts"] }
+					}
+				},
+				{
+					"name": "Toggle Status Diskon",
+					"request": {
+						"method": "PATCH",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/admin/discounts/1/toggle", "host": ["{{base_url}}"], "path": ["admin", "discounts", "1", "toggle"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "09. Admin - Karyawan & Pengguna",
+			"item": [
+				{
+					"name": "Daftar Pengguna / Karyawan",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/admin/users", "host": ["{{base_url}}"], "path": ["admin", "users"] }
+					}
+				},
+				{
+					"name": "Tambah Pengguna Baru",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Siti Rahmawati\",\n    \"email\": \"siti@amartaboga.com\",\n    \"phone\": \"08123456789\",\n    \"role\": \"staff\",\n    \"password\": \"password123\",\n    \"is_active\": true\n}"
+						},
+						"url": { "raw": "{{base_url}}/admin/users", "host": ["{{base_url}}"], "path": ["admin", "users"] }
+					}
+				},
+				{
+					"name": "Toggle Status Aktif Pengguna",
+					"request": {
+						"method": "PATCH",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/admin/users/2/toggle", "host": ["{{base_url}}"], "path": ["admin", "users", "2", "toggle"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "10. Admin - Pengaturan & Laporan",
+			"item": [
+				{
+					"name": "Lihat Pengaturan Toko",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/admin/settings", "host": ["{{base_url}}"], "path": ["admin", "settings"] }
+					}
+				},
+				{
+					"name": "Simpan Pengaturan Toko",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"settings\": {\n        \"restaurant_name\": \"Amarta Boga Resto\",\n        \"tax_percentage\": \"11\",\n        \"service_charge_percentage\": \"5\",\n        \"receipt_footer\": \"Terima kasih atas kunjungan Anda!\"\n    }\n}"
+						},
+						"url": { "raw": "{{base_url}}/admin/settings", "host": ["{{base_url}}"], "path": ["admin", "settings"] }
+					}
+				},
+				{
+					"name": "Laporan Penjualan (JSON KPI)",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/admin/reports/sales?preset=this_month", "host": ["{{base_url}}"], "path": ["admin", "reports", "sales"], "query": [{ "key": "preset", "value": "this_month" }] }
+					}
+				},
+				{
+					"name": "Rekap Shift Kasir (Audit Kas)",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{base_url}}/admin/reports/shifts", "host": ["{{base_url}}"], "path": ["admin", "reports", "shifts"] }
+					}
+				}
+			]
+		}
+	]
+}

@@ -23,6 +23,43 @@ class KdsModuleTest extends TestCase
         $this->koki = User::where('email', 'koki@amartaboga.com')->first();
         $this->cashier = User::where('email', 'kasir@amartaboga.com')->first();
         $this->admin = User::where('email', 'admin@amartaboga.com')->first();
+
+        if (\App\Models\Menu::count() === 0) {
+            $cat = \App\Models\Category::first() ?? \App\Models\Category::create(['name' => 'Makanan', 'slug' => 'makanan']);
+            \App\Models\Menu::create([
+                'category_id' => $cat->id,
+                'name' => 'Menu Dapur Test',
+                'slug' => 'menu-dapur-test',
+                'price' => 30000,
+                'cost_price' => 12000,
+                'is_active' => true,
+                'is_available' => true,
+            ]);
+        }
+
+        if (Order::count() === 0) {
+            $m = \App\Models\Menu::first();
+            $table = \App\Models\Table::first();
+            $order = Order::create([
+                'invoice_number' => 'INV-KDS-001',
+                'user_id' => $this->cashier->id,
+                'table_id' => $table?->id,
+                'customer_name' => 'KDS Test Cust',
+                'order_type' => 'dine_in',
+                'status' => 'pending',
+                'subtotal' => 30000,
+                'total_amount' => 30000,
+                'payment_status' => 'paid',
+            ]);
+            $order->items()->create([
+                'menu_id' => $m->id,
+                'menu_name' => $m->name,
+                'quantity' => 1,
+                'unit_price' => 30000,
+                'subtotal' => 30000,
+                'status' => 'pending',
+            ]);
+        }
     }
 
     public function test_koki_can_access_kds_screen(): void

@@ -38,7 +38,7 @@ class DashboardController extends Controller
         $totalUsers = User::count();
         $totalMenus = Menu::count();
 
-        return view('admin.dashboard', compact(
+        return view('admin_dashboard.index', compact(
             'todaySales',
             'todayOrdersCount',
             'activeOrdersCount',

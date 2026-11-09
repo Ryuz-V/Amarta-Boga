@@ -7,7 +7,6 @@ use App\Http\Requests\Admin\StoreUserRequest;
 use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Models\ActivityLog;
 use App\Models\User;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -16,7 +15,7 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request)
     {
         $query = User::with('roles');
 
@@ -36,6 +35,14 @@ class UserController extends Controller
         $users = $query->latest()->paginate(10)->withQueryString();
         $roles = Role::all();
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'users' => $users,
+                'roles' => $roles
+            ]);
+        }
+
         return view('admin.users.index', compact('users', 'roles'));
     }
 
@@ -45,7 +52,7 @@ class UserController extends Controller
         return view('admin.users.create', compact('roles'));
     }
 
-    public function store(StoreUserRequest $request): RedirectResponse
+    public function store(StoreUserRequest $request)
     {
         $validated = $request->validated();
 
@@ -65,8 +72,30 @@ class UserController extends Controller
             ['user_id' => $user->id, 'role' => $validated['role']]
         );
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Pengguna {$user->name} berhasil ditambahkan!",
+                'data' => $user->load('roles')
+            ], 201);
+        }
+
         return redirect()->route('admin.users.index')
             ->with('success', "Pengguna {$user->name} berhasil ditambahkan!");
+    }
+
+    public function show(Request $request, User $user)
+    {
+        $user->load('roles');
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $user
+            ]);
+        }
+
+        return redirect()->route('admin.users.edit', $user);
     }
 
     public function edit(User $user): View
@@ -77,7 +106,7 @@ class UserController extends Controller
         return view('admin.users.edit', compact('user', 'roles', 'activityLogs'));
     }
 
-    public function update(UpdateUserRequest $request, User $user): RedirectResponse
+    public function update(UpdateUserRequest $request, User $user)
     {
         $validated = $request->validated();
 
@@ -101,13 +130,27 @@ class UserController extends Controller
             ['user_id' => $user->id, 'role' => $validated['role']]
         );
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Data pengguna {$user->name} berhasil diperbarui!",
+                'data' => $user->load('roles')
+            ]);
+        }
+
         return redirect()->route('admin.users.index')
             ->with('success', "Data pengguna {$user->name} berhasil diperbarui!");
     }
 
-    public function destroy(User $user): RedirectResponse
+    public function destroy(Request $request, User $user)
     {
         if ($user->id === Auth::id()) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak dapat menghapus akun Anda sendiri.'
+                ], 422);
+            }
             return back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
@@ -120,13 +163,26 @@ class UserController extends Controller
             ['deleted_user_id' => $user->id]
         );
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Pengguna {$userName} berhasil dihapus."
+            ]);
+        }
+
         return redirect()->route('admin.users.index')
             ->with('success', "Pengguna {$userName} berhasil dihapus.");
     }
 
-    public function toggleStatus(User $user): RedirectResponse
+    public function toggleStatus(Request $request, User $user)
     {
         if ($user->id === Auth::id()) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak dapat menonaktifkan akun Anda sendiri.'
+                ], 422);
+            }
             return back()->with('error', 'Anda tidak dapat menonaktifkan akun Anda sendiri.');
         }
 
@@ -140,6 +196,14 @@ class UserController extends Controller
             "Status akun {$user->name} {$statusText}",
             ['user_id' => $user->id, 'is_active' => $user->is_active]
         );
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'is_active' => $user->is_active,
+                'message' => "Akun {$user->name} berhasil {$statusText}."
+            ]);
+        }
 
         return back()->with('success', "Akun {$user->name} berhasil {$statusText}.");
     }

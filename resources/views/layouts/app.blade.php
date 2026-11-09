@@ -25,7 +25,7 @@
 
     <!-- Main Workspace Container -->
     <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-[#111215] pt-3 sm:pt-4 pr-0 sm:pr-3.5 pb-3 sm:pb-3.5">
-        <div class="flex-1 h-full overflow-hidden flex flex-col bg-white rounded-tl-[32px] rounded-tr-[32px] sm:rounded-[32px] shadow-2xl">
+        <div class="flex-1 h-full overflow-hidden flex flex-col bg-[#F8F9FC] rounded-tl-[32px] rounded-tr-[32px] sm:rounded-[32px] shadow-2xl">
             <!-- Top Header -->
             <x-header :title="$title ?? 'Amarta Boga POS'" :subtitle="$subtitle ?? ''" />
 
